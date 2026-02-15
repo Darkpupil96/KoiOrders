@@ -19,16 +19,26 @@ export default function LoginPage() {
     e.preventDefault();
     setErr(null);
     setLoading(true);
+
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Login failed");
 
-      // 后端返回 { token, requiresPin:true }
+      // ✅ 如果不需要 PIN（admin）
+      if (!data.requiresPin) {
+        localStorage.setItem("koi_token", data.token);
+        router.push("/");
+        router.refresh();
+        return;
+      }
+
+      // ✅ 需要 PIN（staff）
       setPreToken(data.token);
       setStep("pin");
     } catch (e: any) {
@@ -42,6 +52,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErr(null);
     setLoading(true);
+
     try {
       const res = await fetch(`${API_BASE}/api/auth/pin/verify`, {
         method: "POST",
@@ -51,10 +62,11 @@ export default function LoginPage() {
         },
         body: JSON.stringify({ pin }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "PIN failed");
-
-      localStorage.setItem("koi_token", data.token);
+localStorage.setItem("koi_token", data.token);
+localStorage.setItem("koi_user", JSON.stringify(data.user));
       router.push("/");
       router.refresh();
     } catch (e: any) {
@@ -106,10 +118,15 @@ export default function LoginPage() {
               placeholder="••••"
               inputMode="numeric"
               value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+              onChange={(e) =>
+                setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
+              }
             />
 
-            <button className="w-full border rounded-lg p-2" disabled={loading || pin.length !== 4}>
+            <button
+              className="w-full border rounded-lg p-2"
+              disabled={loading || pin.length !== 4}
+            >
               {loading ? "..." : "Verify PIN"}
             </button>
 

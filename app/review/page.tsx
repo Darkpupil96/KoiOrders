@@ -11,6 +11,7 @@ export default function ReviewPage() {
   const router = useRouter();
 
   const [status, setStatus] = useState<Status | null>(null);
+  const [createdBy, setCreatedBy] = useState<string>(""); // ✅ 新增
   const [text, setText] = useState<string>("Loading...");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -26,9 +27,15 @@ export default function ReviewPage() {
       try {
         setErr("");
 
-        // 1) 先拿 status
+        // 1) 先拿 order（status + created by）
         const data = await apiGetOrder(orderId);
         setStatus(data.order.status);
+
+        const creator =
+          (data.order as any).created_by_name ||
+          (data.order as any).created_by_email ||
+          "";
+        setCreatedBy(creator);
 
         // 2) 再拿 preview
         const preview = await apiPreview(orderId);
@@ -99,8 +106,12 @@ export default function ReviewPage() {
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-4">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Review</h1>
+      <header className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">Review</h1>
+          {createdBy && <p className="text-sm text-gray-600">Created by: {createdBy}</p>}
+        </div>
+
         {status && <span className="text-sm text-gray-600">Status: {status}</span>}
       </header>
 
@@ -111,10 +122,18 @@ export default function ReviewPage() {
       {/* sent：只能删除 */}
       {isSent ? (
         <div className="flex gap-2">
-          <button className="flex-1 rounded-xl border py-3" onClick={() => router.push("/orders")} disabled={busy}>
+          <button
+            className="flex-1 rounded-xl border py-3"
+            onClick={() => router.push("/orders")}
+            disabled={busy}
+          >
             Back to History
           </button>
-          <button className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50" onClick={del} disabled={busy}>
+          <button
+            className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50"
+            onClick={del}
+            disabled={busy}
+          >
             Delete
           </button>
         </div>
@@ -123,10 +142,18 @@ export default function ReviewPage() {
           <button className="flex-1 rounded-xl border py-3" onClick={backToEdit} disabled={busy}>
             Back (Edit)
           </button>
-          <button className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50" onClick={submit} disabled={busy}>
+          <button
+            className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50"
+            onClick={submit}
+            disabled={busy}
+          >
             {busy ? "Working..." : "Submit"}
           </button>
-          <button className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50" onClick={del} disabled={busy}>
+          <button
+            className="flex-1 rounded-xl bg-black text-white py-3 disabled:opacity-50"
+            onClick={del}
+            disabled={busy}
+          >
             Delete
           </button>
         </div>
@@ -134,5 +161,6 @@ export default function ReviewPage() {
     </main>
   );
 }
+
 
 

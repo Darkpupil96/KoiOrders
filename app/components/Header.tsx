@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-type UserLite = {
+type User = {
   id: number;
   email: string;
-  role: string;
-  display_name?: string | null;
+  display_name: string | null;
+  role: "admin" | "staff";
 };
 
 function safeJsonParse<T>(s: string | null): T | null {
@@ -39,14 +39,14 @@ export default function Header() {
   const pathname = usePathname();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<UserLite | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("koi_token");
     const userStr = localStorage.getItem("koi_user");
 
     setIsLoggedIn(!!token);
-    setUser(safeJsonParse<UserLite>(userStr));
+    setUser(safeJsonParse<User>(userStr));
   }, [pathname]);
 
   const initial = useMemo(() => {

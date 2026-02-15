@@ -77,7 +77,7 @@ localStorage.setItem("koi_user", JSON.stringify(data.user));
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
+   <main className="min-h-screen flex items-start justify-center pt-24 p-6">
       <div className="w-full max-w-sm space-y-4 border rounded-xl p-6">
         <h1 className="text-xl font-semibold">KOI Orders</h1>
 

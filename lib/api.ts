@@ -9,8 +9,28 @@ export type Item = {
   sort_order: number;
 };
 
-export async function apiGetItems(): Promise<Item[]> {
-  const res = await fetch(`${API_BASE}/api/items`, { cache: "no-store" });
+function getToken() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("koi_token");
+}
+
+export async function apiFetch(path: string, init: RequestInit = {}) {
+  const token = getToken();
+  const headers = new Headers(init.headers || {});
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (!headers.has("Content-Type") && init.body) headers.set("Content-Type", "application/json");
+
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers, cache: "no-store" });
+
+  if (typeof window !== "undefined" && (res.status === 401 || res.status === 403)) {
+    // 没登录 or 没过 PIN
+    window.location.href = "/login";
+  }
+
+  return res;
+}
+export async function apiGetItems() {
+  const res = await apiFetch("/api/items");
   if (!res.ok) throw new Error("Failed to load items");
   const data = await res.json();
   return data.items;

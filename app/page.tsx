@@ -89,11 +89,11 @@ function dec(key: string) {
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">KOI Ordering MVP</h1>
+        <h1 className="text-2xl font-semibold">Order List</h1>
         <button className="rounded-xl border px-4 py-2" onClick={resetAll}>
           Reset
         </button>
-          <Link className="rounded-xl border px-4 py-2" href="/orders">History</Link>
+         
       </header>
 
       {loading ? (
